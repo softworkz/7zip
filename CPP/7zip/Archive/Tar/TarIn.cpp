@@ -186,6 +186,7 @@ HRESULT CArchive::GetNextItemReal(CItemEx &item)
   filled = false;
 
   bool thereAreEmptyRecords = false;
+  unsigned numEmptyRecords = 0;
   for (;;)
   {
     size_t processedSize = NFileHeader::kRecordSize;
@@ -219,6 +220,9 @@ HRESULT CArchive::GetNextItemReal(CItemEx &item)
       break;
     item.HeaderSize += NFileHeader::kRecordSize;
     thereAreEmptyRecords = true;
+    numEmptyRecords++;
+    if (!InStream && numEmptyRecords >= 2)
+      return S_OK;
     RINOK(Progress(item, 0))
   }
   if (thereAreEmptyRecords)
